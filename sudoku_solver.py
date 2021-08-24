@@ -1,6 +1,11 @@
 import numpy as np
 from itertools import product
 
+class InvalidBoardException(Exception):
+    pass
+
+
+
 class SudokuSolver:
 
     SIZE = 9
@@ -12,25 +17,31 @@ class SudokuSolver:
         
 
     def solve (self):
-        if self.is_valid():
-            print("solution found")
-            return True
+        try:
+            if self.is_valid():
+                print("solution found")
+                return True
 
-        position = self.find_empty()
-        if not position:
-            print('Invalid board')
-            return True
-        else:
-            row, col = position
-            unused_digits = self.get_candidates(row, col)
-        for i in unused_digits:
-            self.board[row][col] = i
-
-            if self.solve():
+            position = self.find_empty()
+            if not position:
+                if not self.is_valid():
+                    raise InvalidBoardException
                 return True
             else:
-                self.board[row][col] = 0
-        return False
+                row, col = position
+                unused_digits = self.get_candidates(row, col)
+            for i in unused_digits:
+                self.board[row][col] = i
+
+                if self.solve():
+                    return True
+                else:
+                    self.board[row][col] = 0
+            return False
+
+        except:
+            print("Invalid board")
+            return
 
     def get_candidates(self, row, col):
             box_coord = lambda x : (x//self.BOX_SIZE)*self.BOX_SIZE
@@ -100,7 +111,7 @@ if __name__ == '__main__':
                         [9,0,4,0,6,0,0,0,5],
                         [0,7,0,3,0,0,0,1,2],
                         [1,2,0,0,0,7,4,0,0],
-                        [0,4,9,2,0,6,0,0,7]
+                        [0,4,9,2,0,6,0,7,7]
     ])
     Solver = SudokuSolver(init)
     
